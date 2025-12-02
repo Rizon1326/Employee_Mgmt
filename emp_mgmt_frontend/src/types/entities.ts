@@ -50,8 +50,8 @@ export interface Employee extends BaseEntity, EmployeePermissions {
   full_name: string;
   email: string;
   phone?: string;
-  date_of_birth: string; // ISO date string
-  date_joined: string; // ISO date string
+  date_of_birth: string; 
+  date_joined: string; 
   
   department?: number;
   role?: number;
