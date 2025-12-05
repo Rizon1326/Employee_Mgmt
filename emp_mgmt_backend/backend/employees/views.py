@@ -26,9 +26,10 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 #   SIMPLE LOOKUP TABLES (used for dropdowns)
 # -----------------------------------------------------------
 
-class DepartmentListView(generics.ListAPIView):
+class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    permission_classes = [AllowAny]
 
 
 class RoleListView(generics.ListAPIView):

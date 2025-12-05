@@ -1,17 +1,17 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    EmployeeViewSet, DepartmentListView, RoleListView,
+    EmployeeViewSet, DepartmentViewSet, RoleListView,
     CountryListView, CityListView, EquipmentListView, WorkDayListView
 )
 
 router = DefaultRouter()
 router.register('employees', EmployeeViewSet, basename='employees')
+router.register('departments', DepartmentViewSet, basename='departments')
 
 urlpatterns = [
     path('', include(router.urls)),
 
-    path('departments/', DepartmentListView.as_view(), name='departments'),
     path('roles/', RoleListView.as_view(), name='roles'),
 
     path('countries/', CountryListView.as_view(), name='countries'),
