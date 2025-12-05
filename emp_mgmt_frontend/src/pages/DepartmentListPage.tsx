@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Table, Search, Modal, DepartmentForm, Loading, ErrorMessage } from '../components';
+import { Button, Table, Search, Modal, DepartmentForm, Loading, ErrorMessage, Breadcrumb } from '../components';
 import { useDepartments, useDeleteDepartment } from '../hooks';
 import { useUIStore, useFilterStore, useNotificationStore } from '../stores';
 import type { Department } from '../types';
@@ -84,6 +84,8 @@ export const DepartmentListPage = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      <Breadcrumb />
+      
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Departments</h1>

@@ -26,6 +26,15 @@ export const useRoles = (params?: RoleQueryParams) => {
   });
 };
 
+// Conditional hook for roles by department
+export const useRolesByDepartment = (departmentId?: number) => {
+  return useQuery<PaginatedResponse<Role>, ApiError>({
+    queryKey: roleKeys.list({ department: departmentId }),
+    queryFn: () => roleApi.getAll({ department: departmentId }),
+    enabled: !!departmentId, // Only fetch when departmentId exists
+  });
+};
+
 export const useRole = (id: number) => {
   return useQuery<RoleWithDepartment, ApiError>({
     queryKey: roleKeys.detail(id),
@@ -107,6 +116,15 @@ export const useCities = (params?: CityQueryParams) => {
   return useQuery<PaginatedResponse<City>, ApiError>({
     queryKey: cityKeys.list(params),
     queryFn: () => cityApi.getAll(params),
+  });
+};
+
+// Conditional hook for cities by country
+export const useCitiesByCountry = (countryId?: number) => {
+  return useQuery<PaginatedResponse<City>, ApiError>({
+    queryKey: cityKeys.list({ country: countryId }),
+    queryFn: () => cityApi.getAll({ country: countryId }),
+    enabled: !!countryId, // Only fetch when countryId exists
   });
 };
 

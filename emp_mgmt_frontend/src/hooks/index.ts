@@ -25,6 +25,7 @@ export {
 // Export resource hooks
 export {
   useRoles,
+  useRolesByDepartment,
   useRole,
   useCreateRole,
   useUpdateRole,
@@ -32,6 +33,7 @@ export {
   useCountries,
   useCreateCountry,
   useCities,
+  useCitiesByCountry,
   useCreateCity,
   useEquipment,
   useCreateEquipment,
@@ -43,3 +45,6 @@ export {
   equipmentKeys,
   workDayKeys,
 } from './useResources';
+
+// Export settings hook
+export { useSettings } from './useSettings';
