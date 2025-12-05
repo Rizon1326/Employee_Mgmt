@@ -29,17 +29,17 @@ export interface CreateEmployeeFormInput {
   phone?: string;
   date_of_birth: string; 
   
-  department?: number;
-  role?: number;
-  country?: number;
-  city?: number;
+  department_id?: number;
+  role_id?: number;
+  country_id?: number;
+  city_id?: number;
   
   employment_type: EmploymentType;
   remote_work: boolean;
   office_work: boolean;
   
-  work_days: number[];
-  equipment_needed: number[];
+  work_days_ids: number[];
+  equipment_needed_ids: number[];
   
   can_view_projects: boolean;
   can_edit_projects: boolean;

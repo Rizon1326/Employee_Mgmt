@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useWatch } from 'react-hook-form';
 import { FormWrapper } from './FormWrapper';
 import { FormField } from './FormField';
 import { FormSelect } from './FormSelect';
@@ -9,9 +7,9 @@ import {
   useCreateEmployee, 
   useUpdateEmployee, 
   useDepartments, 
-  useRolesByDepartment,
+  useRoles,
   useCountries, 
-  useCitiesByCountry,
+  useCities,
   useEquipment,
   useWorkDays 
 } from '../hooks';
@@ -33,18 +31,13 @@ export const EmployeeForm = ({ defaultValues, employeeId, onClose }: EmployeeFor
   
   const isEdit = !!employeeId;
 
-  // Load basic dropdown data
+  // Load all dropdown data
   const { data: departments } = useDepartments();
+  const { data: roles } = useRoles();
   const { data: countries } = useCountries();
+  const { data: cities } = useCities();
   const { data: equipment } = useEquipment();
   const { data: workDays } = useWorkDays();
-
-  // Use conditional hooks for dependent dropdowns
-  const selectedDepartment = useWatch({ name: 'department' });
-  const selectedCountry = useWatch({ name: 'country' });
-  
-  const { data: roles } = useRolesByDepartment(selectedDepartment);
-  const { data: cities } = useCitiesByCountry(selectedCountry);
 
   const handleSubmit = async (data: Record<string, unknown>) => {
     try {
@@ -53,15 +46,15 @@ export const EmployeeForm = ({ defaultValues, employeeId, onClose }: EmployeeFor
         email: data.email as string,
         phone: data.phone as string,
         date_of_birth: data.date_of_birth as string,
-        department: data.department ? Number(data.department) : undefined,
-        role: data.role ? Number(data.role) : undefined,
-        country: data.country ? Number(data.country) : undefined,
-        city: data.city ? Number(data.city) : undefined,
+        department_id: data.department ? Number(data.department) : undefined,
+        role_id: data.role ? Number(data.role) : undefined,
+        country_id: data.country ? Number(data.country) : undefined,
+        city_id: data.city ? Number(data.city) : undefined,
         employment_type: data.employment_type as EmploymentType,
         remote_work: Boolean(data.remote_work),
         office_work: Boolean(data.office_work),
-        work_days: (data.work_days as number[]) || [],
-        equipment_needed: (data.equipment_needed as number[]) || [],
+        work_days_ids: (data.work_days as number[]) || [],
+        equipment_needed_ids: (data.equipment_needed as number[]) || [],
         can_view_projects: Boolean(data.can_view_projects),
         can_edit_projects: Boolean(data.can_edit_projects),
         can_delete_projects: Boolean(data.can_delete_projects),
@@ -86,21 +79,6 @@ export const EmployeeForm = ({ defaultValues, employeeId, onClose }: EmployeeFor
       addNotification('error', `Failed to ${isEdit ? 'update' : 'create'} employee`);
     }
   };
-
-  // Clear dependent fields when parent changes
-  useEffect(() => {
-    // Role depends on department - clear when department changes
-    if (selectedDepartment) {
-      // Clear role when department changes (handled by form reset if needed)
-    }
-  }, [selectedDepartment]);
-
-  useEffect(() => {
-    // City depends on country - clear when country changes  
-    if (selectedCountry) {
-      // Clear city when country changes (handled by form reset if needed)
-    }
-  }, [selectedCountry]);
 
   // Prepare dropdown options
   const departmentOptions = departments?.results.map(dept => ({
