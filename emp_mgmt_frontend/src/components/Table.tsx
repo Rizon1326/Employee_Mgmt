@@ -50,7 +50,17 @@ export const Table = <T extends { id: number }>({
                 >
                   {column.render 
                     ? column.render(row[column.key], row)
-                    : String(row[column.key])
+                    : (() => {
+                        const value = row[column.key];
+                        if (value === null || value === undefined) return '-';
+                        if (typeof value === 'object') {
+                          // If it's an object, try to display a meaningful string
+                          if ('name' in value) return String((value as { name: unknown }).name);
+                          if ('id' in value) return `ID: ${(value as { id: unknown }).id}`;
+                          return '[Object]';
+                        }
+                        return String(value);
+                      })()
                   }
                 </td>
               ))}

@@ -1,16 +1,24 @@
 import { useState } from 'react';
-import { Button, Modal, Table, Search, Loading, ErrorMessage, EmployeeForm, Breadcrumb } from '../components';
+import { useNavigate } from 'react-router-dom';
+import { Button, Table, Search, Loading, ErrorMessage, Breadcrumb } from '../components';
 import { useEmployees, useDeleteEmployee } from '../hooks';
-import { useUIStore, useNotificationStore } from '../stores';
+import { useNotificationStore } from '../stores';
 import type { Employee } from '../types';
 
 export const EmployeeListPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
   
-  const { openModal, closeModal } = useUIStore();
   const { addNotification } = useNotificationStore();
   const deleteMutation = useDeleteEmployee();
+
+  // Helper function to safely render department/role names
+  const renderRelationName = (value: unknown): string => {
+    if (value && typeof value === 'object' && 'name' in value) {
+      return String((value as { name: string }).name);
+    }
+    return String(value || '-');
+  };
 
   // Fetch employees with search
   const { data, isLoading, error } = useEmployees({
@@ -22,8 +30,7 @@ export const EmployeeListPage = () => {
   const employees = data?.results || [];
 
   const handleEdit = (employee: Employee) => {
-    setEditEmployee(employee);
-    openModal('createEmployee', employee);
+    navigate(`/employees/edit/${employee.id}`);
   };
 
   const handleDelete = async (employee: Employee) => {
@@ -37,38 +44,41 @@ export const EmployeeListPage = () => {
     }
   };
 
-  const handleCloseModal = () => {
-    setEditEmployee(null);
-    closeModal();
-  };
-
   const handleCreateNew = () => {
-    setEditEmployee(null);
-    openModal('createEmployee');
+    navigate('/employees/create');
   };
 
   const columns = [
     { 
       key: 'full_name' as keyof Employee, 
-      label: 'Full Name' 
+      label: 'Full Name',
+      render: (value: unknown) => String(value || '-')
     },
     { 
       key: 'email' as keyof Employee, 
-      label: 'Email' 
+      label: 'Email',
+      render: (value: unknown) => String(value || '-')
     },
     { 
       key: 'department' as keyof Employee, 
       label: 'Department',
-      render: (_: unknown, employee: Employee) => employee.department || '-'
+      render: (_: unknown, employee: Employee) => {
+        const dept = (employee as unknown as Record<string, unknown>).department;
+        return renderRelationName(dept);
+      }
     },
     { 
       key: 'role' as keyof Employee, 
       label: 'Role',
-      render: (_: unknown, employee: Employee) => employee.role || '-'
+      render: (_: unknown, employee: Employee) => {
+        const role = (employee as unknown as Record<string, unknown>).role;
+        return renderRelationName(role);
+      }
     },
     { 
       key: 'employment_type' as keyof Employee, 
-      label: 'Employment Type' 
+      label: 'Employment Type',
+      render: (value: unknown) => String(value || '-')
     },
     {
       key: 'id' as keyof Employee,
@@ -117,33 +127,6 @@ export const EmployeeListPage = () => {
         data={employees}
         columns={columns}
       />
-
-      <Modal title={editEmployee ? "Edit Employee" : "Create Employee"}>
-        <EmployeeForm
-          defaultValues={editEmployee ? {
-            full_name: editEmployee.full_name,
-            email: editEmployee.email,
-            phone: editEmployee.phone,
-            date_of_birth: editEmployee.date_of_birth,
-            department: editEmployee.department,
-            role: editEmployee.role,
-            country: editEmployee.country,
-            city: editEmployee.city,
-            employment_type: editEmployee.employment_type,
-            remote_work: editEmployee.remote_work,
-            office_work: editEmployee.office_work,
-            work_days: editEmployee.work_days,
-            equipment_needed: editEmployee.equipment_needed,
-            can_view_projects: editEmployee.can_view_projects,
-            can_edit_projects: editEmployee.can_edit_projects,
-            can_delete_projects: editEmployee.can_delete_projects,
-            can_manage_employees: editEmployee.can_manage_employees,
-            can_approve_budget: editEmployee.can_approve_budget,
-          } : undefined}
-          employeeId={editEmployee?.id}
-          onClose={handleCloseModal}
-        />
-      </Modal>
     </div>
   );
 };

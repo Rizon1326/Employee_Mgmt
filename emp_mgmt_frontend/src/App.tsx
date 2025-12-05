@@ -1,6 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryProvider } from './hooks';
-import { DashboardPage, DepartmentListPage, EmployeeListPage, SettingsPage } from './pages';
+import { 
+  DashboardPage, 
+  DepartmentListPage, 
+  EmployeeListPage, 
+  CreateEmployeePage,
+  EditEmployeePage,
+  SettingsPage 
+} from './pages';
 import { Toast, Sidebar } from './components';
 
 function App() {
@@ -17,6 +24,8 @@ function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/departments" element={<DepartmentListPage />} />
               <Route path="/employees" element={<EmployeeListPage />} />
+              <Route path="/employees/create" element={<CreateEmployeePage />} />
+              <Route path="/employees/edit/:id" element={<EditEmployeePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               {/* Redirect unknown routes to dashboard */}
               <Route path="*" element={<Navigate to="/" replace />} />
