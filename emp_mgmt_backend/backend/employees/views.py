@@ -8,10 +8,6 @@ from .serializers import (
     CountrySerializer, CitySerializer, EquipmentSerializer, WorkDaySerializer
 )
 
-
-# -----------------------------------------------------------
-#   EMPLOYEE CRUD (Full Create, List, Retrieve, Update, Delete)
-# -----------------------------------------------------------
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all().select_related(
         'department', 'role', 'country', 'city'
@@ -20,11 +16,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     serializer_class = EmployeeSerializer
     permission_classes = [AllowAny]
     
-
-
-# -----------------------------------------------------------
-#   SIMPLE LOOKUP TABLES (used for dropdowns)
-# -----------------------------------------------------------
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
