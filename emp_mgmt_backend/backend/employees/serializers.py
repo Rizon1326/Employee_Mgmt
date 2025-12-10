@@ -78,7 +78,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "phone",
             "date_of_birth",
             "date_joined",
-
+            
             # read-only nested
             "department",
             "role",
@@ -107,33 +107,22 @@ class EmployeeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ("id", "date_joined")
 
-    # -------------------------
-    # Field-level validation
-    # -------------------------
     def validate_role_id(self, role_obj):
-        """
-        Ensure selected role belongs to provided department_id (in initial_data).
-        Note: role_obj is a Role instance (because PrimaryKeyRelatedField returns model instance).
-        """
+        
         department_id = self.initial_data.get("department_id")
         if department_id and str(role_obj.department_id) != str(department_id):
             raise serializers.ValidationError("Selected role does not belong to the selected department.")
         return role_obj
 
     def validate_city_id(self, city_obj):
-        """
-        Ensure selected city belongs to provided country_id.
-        """
+        
         country_id = self.initial_data.get("country_id")
         if country_id and str(city_obj.country_id) != str(country_id):
             raise serializers.ValidationError("Selected city does not belong to the selected country.")
         return city_obj
 
     def validate(self, attrs):
-        """
-        attrs here contains keys mapped to model fields thanks to `source=` in the field definitions.
-        For example, 'equipment_needed' may be present as a list of Equipment instances.
-        """
+      
         errors = {}
 
         remote = attrs.get("remote_work", False)
@@ -142,12 +131,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
         can_edit = attrs.get("can_edit_projects", False)
         can_view = attrs.get("can_view_projects", False)
 
-        # Rule: if not remote, equipment must be empty
-        # equipment may be a list of instances or an empty list
         if not remote and equipment:
             errors["equipment_needed"] = "Office employees cannot request equipment. Set remote_work = True to assign equipment."
 
-        # Permission dependencies
         if can_del and not (can_edit and can_view):
             errors["can_delete_projects"] = "To have delete permission, employee must have both edit + view permission."
 
@@ -159,28 +145,20 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    # -------------------------
-    # Create / Update (handle M2M properly)
-    # -------------------------
     def create(self, validated_data):
-        # Mapped sources: department, role, country, city, equipment_needed, work_days
         equipment = validated_data.pop("equipment_needed", [])
         work_days = validated_data.pop("work_days", [])
 
-        # create employee (FK fields already present because of source mapping)
         employee = Employee.objects.create(**validated_data)
 
-        # assign M2M
         if equipment:
             employee.equipment_needed.set(equipment)
         if work_days:
             employee.work_days.set(work_days)
 
-        # final model-level validation & save
         try:
             employee.clean()
         except ValidationError as e:
-            # Convert model ValidationError to DRF ValidationError for consistent API errors
             raise serializers.ValidationError(e.message_dict if hasattr(e, "message_dict") else e.messages)
 
         employee.save()
@@ -190,11 +168,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
         equipment = validated_data.pop("equipment_needed", None)
         work_days = validated_data.pop("work_days", None)
 
-        # update simple fields and FKs (department, role, country, city are present if provided)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # run model validation before saving M2M
         try:
             instance.clean()
         except ValidationError as e:
@@ -202,7 +178,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        # update M2M after instance saved
         if equipment is not None:
             instance.equipment_needed.set(equipment)
         if work_days is not None:
