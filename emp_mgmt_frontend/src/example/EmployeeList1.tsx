@@ -3,8 +3,8 @@ import React from 'react';
 import { Edit2, Trash2, Plus, Search, Settings } from 'lucide-react';
 
 const EmployeeList = () => {
-  // Mock data and stubs for preview (use when backend data isn't available)
-  const departments = [
+
+    const departments = [
     { id: 1, name: 'Engineering' },
     { id: 2, name: 'Sales' },
   ];
