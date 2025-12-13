@@ -1,30 +1,16 @@
-import React from 'react';
+import { useState } from 'react';
 
 import { Edit2, Trash2, Plus, Search, Settings } from 'lucide-react';
 
 const EmployeeList = () => {
+  const [departmentFilter, setDepartmentFilter] = useState('');
+  const departments = [{ id: 1, name: 'Development' },{id:2,name:'HR'},{id:3,name:'Finance'}];
+  const [countryFilter,setCountryFilter]=useState('')
+  const countries = [{id:1,name:'USA'},{id:2,name:'Canada'},{id:3,name:'UK'},{id:4,name:'Bangladesh'}];
+  const [workingTypeFilter,setWorkingTypeFilter]=useState('')
+  const workingTypes = [{id:1,name:'Office'},{id:2,name:'Remote'}];
 
-    const departments = [
-    { id: 1, name: 'Engineering' },
-    { id: 2, name: 'Sales' },
-  ];
-
-  const countries = [
-    { id: 1, name: 'United States' },
-    { id: 2, name: 'Canada' },
-  ];
-
-  const roles = [
-    { id: 1, name: 'Developer' },
-    { id: 2, name: 'Manager' },
-  ];
-
-  const cities = [
-    { id: 1, name: 'New York' },
-    { id: 2, name: 'Toronto' },
-  ];
-
-  const filteredEmployees = [
+  const totalEmployees = [
     {
       id: 1,
       name: 'Alice Johnson',
@@ -46,6 +32,15 @@ const EmployeeList = () => {
       workingType: 'Remote',
     },
   ];
+   const roles = [
+    { id: 1, name: 'Developer' },
+    { id: 2, name: 'Manager' },
+  ];
+
+  const cities = [
+    { id: 1, name: 'New York' },
+    { id: 2, name: 'Toronto' },
+  ];
 
   const getDepartmentName = (id: number | string) =>
     departments.find((d) => d.id === Number(id))?.name ?? 'Unknown';
@@ -56,36 +51,21 @@ const EmployeeList = () => {
   const getWorkingDaysNames = (days: number[]) =>
     (days || []).map((d) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][d - 1]).filter(Boolean).join(', ');
 
-  const navigate = (path: string) => {
-    // stub navigation for preview
-    console.log('navigate to', path);
-  };
-
-  const handleDelete = (id: number, name: string) => {
-    // stub delete for preview
-    console.log('delete', id, name);
-  };
-
-  const [countryFilter, setCountryFilter] = React.useState<string>('');
-  const [workingTypeFilter, setWorkingTypeFilter] = React.useState<string>('');
-  const [departmentFilter, setDepartmentFilter] = React.useState<string>('');
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-linear-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-slate-800">Employee Management</h1>
           <div className="flex gap-3">
             <button
-              // onClick={() => navigate('/admin/settings')}
+              
               className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-slate-200"
             >
               <Settings className="w-4 h-4" />
               Admin Settings
             </button>
             <button
-              // onClick={() => navigate('/employees/new')}
               className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all"
             >
               <Plus className="w-5 h-5" />
@@ -103,8 +83,6 @@ const EmployeeList = () => {
               <input
                 type="text"
                 placeholder="Search by name..."
-               
-                // onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -144,8 +122,11 @@ const EmployeeList = () => {
               className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             >
               <option value="">All Working Types</option>
-              <option value="Office">Office</option>
-              <option value="Remote">Remote</option>
+              {workingTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -167,14 +148,14 @@ const EmployeeList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredEmployees.length === 0 ? (
+                {totalEmployees.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                       No employees found
                     </td>
                   </tr>
                 ) : (
-                  filteredEmployees.map((employee) => (
+                  totalEmployees.map((employee) => (
                     <tr key={employee.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4 text-slate-900">{employee.name}</td>
                       <td className="px-6 py-4 text-slate-600">
@@ -206,14 +187,14 @@ const EmployeeList = () => {
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => navigate(`/employees/edit/${employee.id}`)}
+                            // onClick={() => navigate(`/employees/edit/${employee.id}`)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Edit"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(employee.id, employee.name)}
+                            // onClick={() => handleDelete(employee.id, employee.name)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete"
                           >
