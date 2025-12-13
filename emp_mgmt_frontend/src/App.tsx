@@ -1,6 +1,6 @@
 
 // import EmployeeList from "./components/EmployeeList";
-import { AdminSettingsPage } from "./features/AdminSettings";
+// import { AdminSettingsPage } from "./features/adminSettings/components/AdminSettings";
 // import EmployeeFormPage from "./components/EmployeeFormPage";
 // import { EquipmentModal } from "./components/EquipmentModal";
 
@@ -10,7 +10,7 @@ function App() {
       {/* <EmployeeList />  */}
       {/* <EquipmentModal/> */}
       {/* <EmployeeFormPage/> */}
-      <AdminSettingsPage />
+      {/* <AdminSettingsPage /> */}
     </div>
   );
 }

@@ -21,10 +21,12 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
 
 
-class RoleListView(generics.ListAPIView):
+class RoleViewSet(viewsets.ModelViewSet):
     serializer_class = RoleSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         """
@@ -36,15 +38,20 @@ class RoleListView(generics.ListAPIView):
         if dept_id:
             queryset = queryset.filter(department_id=dept_id)
         return queryset
+    
+    pagination_class = None  
 
 
-class CountryListView(generics.ListAPIView):
+class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
+    permission_classes = [AllowAny]
+    pagination_class = None  
 
 
-class CityListView(generics.ListAPIView):
+class CityViewSet(viewsets.ModelViewSet):
     serializer_class = CitySerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         """
@@ -57,12 +64,18 @@ class CityListView(generics.ListAPIView):
             queryset = queryset.filter(country_id=country_id)
         return queryset
 
+    pagination_class = None
 
-class EquipmentListView(generics.ListAPIView):
+
+class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None  
 
 
-class WorkDayListView(generics.ListAPIView):
+class WorkDayViewSet(viewsets.ModelViewSet):
     queryset = WorkDay.objects.all()
     serializer_class = WorkDaySerializer
+    permission_classes = [AllowAny]
+    pagination_class = None

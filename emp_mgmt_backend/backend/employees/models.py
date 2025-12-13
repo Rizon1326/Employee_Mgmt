@@ -47,7 +47,7 @@ class Equipment(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["id"]  # ID দিয়ে sorting (creation order অনুযায়ী)
 
     def __str__(self):
         return self.name

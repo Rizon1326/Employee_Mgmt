@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { EquipmentModal } from './EquipmentModal';
+import { EquipmentModal } from '../../equipmentModal/components/EquipmentModal';
 
 
 type Department = { id: number; name: string };
