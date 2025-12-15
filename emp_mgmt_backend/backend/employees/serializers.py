@@ -159,6 +159,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         try:
             employee.clean()
         except ValidationError as e:
+            employee.delete()
             raise serializers.ValidationError(e.message_dict if hasattr(e, "message_dict") else e.messages)
 
         employee.save()
@@ -171,11 +172,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        try:
-            instance.clean()
-        except ValidationError as e:
-            raise serializers.ValidationError(e.message_dict if hasattr(e, "message_dict") else e.messages)
-
         instance.save()
 
         if equipment is not None:
@@ -183,4 +179,10 @@ class EmployeeSerializer(serializers.ModelSerializer):
         if work_days is not None:
             instance.work_days.set(work_days)
 
+        try:
+            instance.clean()
+        except ValidationError as e:
+            raise serializers.ValidationError(e.message_dict if hasattr(e, "message_dict") else e.messages)
+
+        instance.save()
         return instance

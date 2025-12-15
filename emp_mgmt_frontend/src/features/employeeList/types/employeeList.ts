@@ -26,11 +26,6 @@ export type WorkDay = {
     name: string;
 }
 
-export type WorkingType = {
-    id: number;
-    name: string;
-}
-
 export type Employee = {
     id: number;
     full_name: string;
@@ -43,9 +38,8 @@ export type Employee = {
     role: Role;
     country: Country;
     city: City;
-    equipment: Equipment[];
-    working_days: WorkDay[];
-    working_type: WorkingType;
+    equipment_needed: Equipment[];
+    work_days: WorkDay[];
 
     remote_work: boolean;
     office_work: boolean;

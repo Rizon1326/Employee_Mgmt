@@ -105,7 +105,7 @@ class Employee(models.Model):
             if self.city.country_id != self.country_id:
                 errors["city"] = "Selected city does not belong to the selected country."
 
-        if not self.remote_work:
+        if not self.remote_work and self.pk:
             if self.equipment_needed.exists():
                 errors["equipment_needed"] = ("Office employees cannot request equipment. Set remote_work = True.")
 

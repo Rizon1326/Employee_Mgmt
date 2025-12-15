@@ -9,7 +9,17 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
     throw new Error('Failed to fetch employee list');
   }
 
-  return res.json();
+  const data = await res.json();
+    if (data.results && Array.isArray(data.results)) {
+    return data.results;
+  }
+  
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  console.error('Unexpected API response format:', data);
+  return [];
 };
 
 export const fetchDepartments = async (): Promise<Department[]> => {
@@ -19,7 +29,18 @@ export const fetchDepartments = async (): Promise<Department[]> => {
     throw new Error('Failed to fetch Department');
   }
 
-  return res.json();
+  const data = await res.json();
+  
+  if (data.results && Array.isArray(data.results)) {
+    return data.results;
+  }
+  
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  console.error('Unexpected API response format:', data);
+  return [];
 };
 
 export const fetchCountries = async (): Promise<Country[]> => {
@@ -29,6 +50,17 @@ export const fetchCountries = async (): Promise<Country[]> => {
     throw new Error('Failed to fetch Country');
   }
 
-  return res.json();
+  const data = await res.json();
+  
+  if (data.results && Array.isArray(data.results)) {
+    return data.results;
+  }
+  
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  console.error('Unexpected API response format:', data);
+  return [];
 };
 

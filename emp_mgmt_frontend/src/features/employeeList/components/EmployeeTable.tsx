@@ -32,11 +32,11 @@ const EmployeeTable = () => {
     );
   }
 
-  const employees = employeeData || [];
+  const employees = Array.isArray(employeeData) ? employeeData : [];
 
-  // const getWorkingDaysNames = (workingDays: Array<{id: number; name: string}>) => {
-  //   return workingDays.map(day => day.name).join(', ');
-  // };
+  const getWorkingDaysNames = (workingDays: Array<{id: number; name: string}>) => {
+    return workingDays.map(day => day.name).join(', ');
+  };
 
   const getWorkingTypeDisplay = (employee: Employee) => {
     if (employee.remote_work && employee.office_work) {
@@ -46,7 +46,7 @@ const EmployeeTable = () => {
     } else if (employee.office_work) {
       return 'Office';
     } else {
-      return employee.working_type?.name || 'Unknown';
+      return 'Unknown';
     }
   };
 
@@ -77,7 +77,7 @@ const EmployeeTable = () => {
                     </td>
                   </tr>
                 ) : (
-                  employees.map((employee) => (
+                  employees.map((employee: Employee) => (
                     <tr key={employee.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4 text-slate-900">{employee.full_name}</td>
                       <td className="px-6 py-4 text-slate-600">
@@ -93,8 +93,7 @@ const EmployeeTable = () => {
                         {employee.city?.name || 'Unknown'}
                       </td>
                       <td className="px-6 py-4 text-slate-600 text-sm">
-                        {/* {getWorkingDaysNames(employee.working_days || [])} */}
-                        {employee.working_days?.map((day) => day.name).join(', ') || 'N/A'}
+                        {getWorkingDaysNames(employee.work_days || [])}
                       </td>
                       <td className="px-6 py-4">
                         <span
