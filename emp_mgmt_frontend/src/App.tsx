@@ -3,7 +3,8 @@
 // import EmployeeFormPage from "./components/EmployeeFormPage";
 // import { EquipmentModal } from "./features/equipmentModal/components/EquipmentModal";
 
-import EmployeeList from "./pages/EmployeeList";
+// import EmployeeList from "./pages/EmployeeList";
+import { CityList } from "./features/adminSettings/components/cities/CityList";
 
 // import EmployeeHeader from "./features/employeeList/components/EmployeeHeader";
 
@@ -22,7 +23,8 @@ function App() {
       {/* <EmployeeTable /> */}
       {/* <EmployeeHeader /> */}
       {/* <EmployeeFilter/> */}
-      <EmployeeList/>
+      {/* <EmployeeList/> */}
+      <CityList/>
     </div>
   );
 }

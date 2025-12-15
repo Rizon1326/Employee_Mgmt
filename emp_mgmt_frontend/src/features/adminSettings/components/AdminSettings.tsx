@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, ArrowLeft, Building2, Users, Globe, MapPin, Monitor, Calendar } from 'lucide-react';
-
+import ManagementCard from './ManagementCard';
 export const AdminSettingsPage = () => {
 //   const navigate = useNavigate();
 
@@ -826,20 +826,4 @@ export const AdminSettingsPage = () => {
   );
 };
 
-interface ManagementCardProps {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}
 
-const ManagementCard = ({ title, icon, children }: ManagementCardProps) => {
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <div className="flex items-center gap-2 mb-4">
-        {icon && <div className="text-blue-600">{icon}</div>}
-        <h2 className="text-slate-800">{title}</h2>
-      </div>
-      {children}
-    </div>
-  );
-};
