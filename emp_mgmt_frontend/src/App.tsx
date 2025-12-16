@@ -4,7 +4,10 @@
 // import { EquipmentModal } from "./features/equipmentModal/components/EquipmentModal";
 
 // import EmployeeList from "./pages/EmployeeList";
-import { CityList } from "./features/adminSettings/components/cities/CityList";
+// import { CityList } from "./features/adminSettings/components/cities/CityList";
+import { City } from "./features/adminSettings/components/cities/City";
+// import { CityList } from "./features/adminSettings/components/cities/CityList";
+// import ManagementCard from "./features/adminSettings/components/ManagementCard";
 
 // import EmployeeHeader from "./features/employeeList/components/EmployeeHeader";
 
@@ -24,7 +27,8 @@ function App() {
       {/* <EmployeeHeader /> */}
       {/* <EmployeeFilter/> */}
       {/* <EmployeeList/> */}
-      <CityList/>
+      <City/>
+      
     </div>
   );
 }
