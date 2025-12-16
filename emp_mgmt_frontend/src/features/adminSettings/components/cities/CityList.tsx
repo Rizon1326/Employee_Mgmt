@@ -2,74 +2,66 @@ import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import { Edit2, Trash2 } from 'lucide-react';
 import ManagementCard from '../ManagementCard';
+import { useCities, useCountries } from '../../hooks/useAdminSettings';
+
 export const CityList = () => {
     //   const navigate = useNavigate();
 
-    // Using local mock data and handlers instead of external context
+    // Using data from hooks
+    const { data: countryData, isLoading: isCountryLoading, isError: isCountryError } = useCountries();
+    const { data: cityData, isLoading: isCityLoading, isError: isCityError } = useCities();
 
-    type CountryT = { id: string; name: string };
-    type CityT = { id: string; name: string; countryId: string };
+    // Use actual data from hooks instead of mock data
+    const countries = countryData || [];
+    const cities = cityData || [];
 
-
-
-
-    const [countries] = useState<CountryT[]>([
-        { id: 'c1', name: 'United States' },
-        { id: 'c2', name: 'India' },
-    ]);
-
-    const [cities, setCities] = useState<CityT[]>([
-        { id: 'ci1', name: 'New York', countryId: 'c1' },
-        { id: 'ci2', name: 'Bengaluru', countryId: 'c2' },
-    ]);
-
-    // City handlers
-    const updateCity = (id: string, name: string, countryId: string) =>
-        setCities((s) => s.map((c) => (c.id === id ? { ...c, name, countryId } : c)));
-    const deleteCity = (id: string) => setCities((s) => s.filter((c) => c.id !== id));
-
-
-
-    // City state
-    const [editingCity, setEditingCity] = useState<{ id: string; name: string; countryId: string } | null>(null);
+    // City state for editing
+    const [editingCity, setEditingCity] = useState<{ id: number; name: string; country: number } | null>(null);
 
     const handleUpdateCity = () => {
-        if (editingCity && editingCity.name.trim() && editingCity.countryId) {
-            updateCity(editingCity.id, editingCity.name, editingCity.countryId);
+        if (editingCity && editingCity.name.trim() && editingCity.country) {
+            // TODO: Implement actual update API call
+            console.log('Update city:', editingCity);
             setEditingCity(null);
         }
     };
 
-    const handleDeleteCity = (id: string, name: string) => {
+    const handleDeleteCity = (id: number, name: string) => {
         if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-            deleteCity(id);
+            // TODO: Implement actual delete API call
+            console.log('Delete city:', id);
         }
     };
+
+    // Show loading state
+    if (isCountryLoading || isCityLoading) {
+        return <div className="p-4">Loading...</div>;
+    }
+
+    // Show error state
+    if (isCountryError || isCityError) {
+        return <div className="p-4 text-red-600">Error loading data</div>;
+    }
 
     const isActiveSection = true;
 
     return (
-
-
-
         <>
             {/* Content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {isActiveSection && (
                     <>
-
                         <ManagementCard title="Cities List">
                             <div className="space-y-2">
                                 {cities.map((city) => {
-                                    const country = countries.find((c) => c.id === city.countryId);
                                     return (
                                         <div key={city.id}>
                                             {editingCity?.id === city.id ? (
                                                 <div className="space-y-2">
                                                     <select
-                                                        value={editingCity.countryId}
+                                                        value={editingCity.country}
                                                         onChange={(e) =>
-                                                            setEditingCity({ ...editingCity, countryId: e.target.value })
+                                                            setEditingCity({ ...editingCity, country: parseInt(e.target.value) })
                                                         }
                                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                     >
@@ -106,11 +98,15 @@ export const CityList = () => {
                                                 <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                                                     <div>
                                                         <span className="text-slate-700">{city.name}</span>
-                                                        <p className="text-sm text-slate-500">{country?.name}</p>
+                                                        <p className="text-sm text-slate-500">{city.country?.name}</p>
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <button
-                                                            onClick={() => setEditingCity(city)}
+                                                            onClick={() => setEditingCity({
+                                                                id: city.id,
+                                                                name: city.name,
+                                                                country: city.country?.id || 0
+                                                            })}
                                                             className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                                                         >
                                                             <Edit2 className="w-4 h-4" />
@@ -133,7 +129,6 @@ export const CityList = () => {
                 )}
             </div>
         </>
-
     );
 };
 
