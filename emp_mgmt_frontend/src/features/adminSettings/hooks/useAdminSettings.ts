@@ -49,7 +49,7 @@ export const useCreateCity = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (cityData: Partial<City>) => createCity(cityData),
+    mutationFn: (cityData:Partial<City>) => createCity(cityData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cities'] });
     },
