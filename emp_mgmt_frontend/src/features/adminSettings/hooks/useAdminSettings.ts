@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {fetchCities, fetchCountries, updateCity, deleteCity} from '../services/adminSettings.service';
+import {fetchCities, fetchCountries, updateCity, deleteCity,createCity} from '../services/adminSettings.service';
 import type { City } from '../types/adminSettings';
 
 export const useCities = () => {
@@ -45,3 +45,16 @@ export const useDeleteCity = () => {
     },
   });
 };
+export const useCreateCity = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (cityData: Partial<City>) => createCity(cityData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
+    },
+    onError: (error) => {
+      console.error('Error creating city:', error);
+    },
+  });
+}

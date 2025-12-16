@@ -1,4 +1,4 @@
-import { fetchList, updateItem, deleteItem } from "../../../api/apiClient";
+import { fetchList, updateItem, deleteItem,createItem } from "../../../api/apiClient";
 import type { City, Country } from "../types/adminSettings";
 
 export const fetchCities = async (): Promise<City[]> => {
@@ -16,3 +16,6 @@ export const updateCity = async (id: number, cityData: Partial<City>): Promise<C
 export const deleteCity = async (id: number): Promise<void> => {
   return deleteItem("cities", id);
 };
+export const createCity = async (cityData: Partial<City>): Promise<City> => {
+  return createItem<City>("cities", cityData);
+}
