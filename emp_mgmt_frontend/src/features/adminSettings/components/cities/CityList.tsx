@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 // import { useNavigate } from 'react-router-dom';
 import { Edit2, Trash2 } from "lucide-react";
-import { useCities, useCountries, useUpdateCity, useDeleteCity } from "../../hooks/useAdminSettings";
+import {
+  useCities,
+  useCountries,
+  useUpdateCity,
+  useDeleteCity,
+} from "../../hooks/useAdminSettings";
 
 export const CityList = () => {
   const {
@@ -24,7 +29,7 @@ export const CityList = () => {
   const [editingCity, setEditingCity] = useState<{
     id: number;
     name: string;
-    country: number;
+    country: number | null;
   } | null>(null);
 
   const handleUpdateCity = async () => {
@@ -34,12 +39,16 @@ export const CityList = () => {
           id: editingCity.id,
           cityData: {
             name: editingCity.name,
-            country: { id: editingCity.country, name: countries.find(c => c.id === editingCity.country)?.name || '' }
-          }
+            country: {
+              id: editingCity.country,
+              name:
+                countries.find((c) => c.id === editingCity.country)?.name || "",
+            },
+          },
         });
         setEditingCity(null);
       } catch (error) {
-        console.error('Failed to update city:', error);
+        console.error("Failed to update city:", error);
       }
     }
   };
@@ -49,7 +58,7 @@ export const CityList = () => {
       try {
         await deleteCityMutation.mutateAsync(id);
       } catch (error) {
-        console.error('Failed to delete city:', error);
+        console.error("Failed to delete city:", error);
       }
     }
   };
@@ -62,9 +71,6 @@ export const CityList = () => {
     return <div className="p-4 text-red-600">Error loading data</div>;
   }
 
-  const isUpdating = updateCityMutation.isPending;
-  const isDeleting = deleteCityMutation.isPending;
-
   return (
     <>
       <div className="space-y-2">
@@ -73,22 +79,16 @@ export const CityList = () => {
             <div key={city.id}>
               {editingCity?.id === city.id ? (
                 <div className="space-y-2">
-                  <select
-                    value={editingCity.country}
-                    onChange={(e) =>
-                      setEditingCity({
-                        ...editingCity,
-                        country: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    {countries.map((country) => (
-                      <option key={country.id} value={country.id}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <span className="text-slate-500">
+                      {
+                        countries.find(
+                          (country) => country.id === editingCity.country
+                        )?.name
+                      }
+                    </span>
+                  </div>
+
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -100,10 +100,10 @@ export const CityList = () => {
                     />
                     <button
                       onClick={handleUpdateCity}
-                      disabled={isUpdating}
+                      disabled={updateCityMutation.isPending}
                       className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isUpdating ? 'Saving...' : 'Save'}
+                      {updateCityMutation.isPending ? "Saving..." : "Save"}
                     </button>
                     <button
                       onClick={() => setEditingCity(null)}
@@ -130,14 +130,14 @@ export const CityList = () => {
                           country: city.country?.id || 0,
                         })
                       }
-                      className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                      className="p-1 text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCity(city.id, city.name)}
-                      disabled={isDeleting}
-                      className="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={deleteCityMutation.isPending}
+                      className="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

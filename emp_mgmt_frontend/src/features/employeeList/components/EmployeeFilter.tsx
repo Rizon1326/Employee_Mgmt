@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDepartments,useCountries } from '../hooks/useEmployeeList';
 import { Search } from 'lucide-react';
+import type { Country, Department } from '../types/employeeList';
 
 const EmployeeList = () => {
   const [departmentFilter, setDepartmentFilter] = useState('');
@@ -13,10 +14,8 @@ const EmployeeList = () => {
 
   return (
     <>
-      {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
@@ -26,7 +25,6 @@ const EmployeeList = () => {
               />
             </div>
 
-            {/* Department Filter */}
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
@@ -41,7 +39,7 @@ const EmployeeList = () => {
                   Error loading departments
                 </option>
               )}
-              {deptData?.map((dept) => (
+              {deptData?.map((dept: Department) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.name}
                 </option>
@@ -61,14 +59,13 @@ const EmployeeList = () => {
                 </option>
               )}
 
-              {countryData?.map((country) => (
+              {countryData?.map((country: Country) => (
                 <option key={country.id} value={country.id}>
                   {country.name}
                 </option>
               ))}
             </select>
 
-            {/* Working Type Filter */}
             <select
               value={workingTypeFilter}
               onChange={(e) => setWorkingTypeFilter(e.target.value)}
