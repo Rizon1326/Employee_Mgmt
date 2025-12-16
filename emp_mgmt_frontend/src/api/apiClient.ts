@@ -50,5 +50,20 @@ async function deleteItem(endpoint: string, id: number): Promise<void> {
     throw new Error(`Failed to delete item with id ${id} at ${endpoint}`);
   }
 }
+async function createItem<T>(endpoint: string, item: Partial<T>): Promise<T> {
+  const res = await fetch(`${BASE_URL}/${endpoint}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(item),
+  });
 
-export { fetchList, updateItem, deleteItem };
+  if (!res.ok) {
+    throw new Error(`Failed to create item at ${endpoint}`);
+  }
+
+  return res.json();
+}
+
+export { fetchList, updateItem, deleteItem, createItem };
