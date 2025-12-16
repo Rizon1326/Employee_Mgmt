@@ -24,4 +24,31 @@ async function fetchList<T>(endpoint: string): Promise<T[]> {
   console.error('Unexpected API response format:', data);
   return [];
 }
-export default fetchList;
+
+async function updateItem<T>(endpoint: string, id: number, item: Partial<T>): Promise<T> {
+  const res = await fetch(`${BASE_URL}/${endpoint}/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(item),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to update item with id ${id} at ${endpoint}`);
+  }
+
+  return res.json();
+}
+
+async function deleteItem(endpoint: string, id: number): Promise<void> {
+  const res = await fetch(`${BASE_URL}/${endpoint}/${id}/`, {
+    method: 'DELETE',
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete item with id ${id} at ${endpoint}`);
+  }
+}
+
+export { fetchList, updateItem, deleteItem };
