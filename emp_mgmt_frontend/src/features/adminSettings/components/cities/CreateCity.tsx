@@ -27,7 +27,6 @@ export const CreateCity = () => {
         country_id: parseInt(selectedCountry)
       });
       
-      // Reset form after successful creation
       setCityName("");
       setSelectedCountry("");
     } catch (error) {

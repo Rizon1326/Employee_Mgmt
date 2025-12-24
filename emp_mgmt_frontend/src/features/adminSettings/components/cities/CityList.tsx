@@ -39,11 +39,7 @@ export const CityList = () => {
           id: editingCity.id,
           cityData: {
             name: editingCity.name,
-            country: {
-              id: editingCity.country,
-              name:
-                countries.find((c) => c.id === editingCity.country)?.name || "",
-            },
+            country_id: editingCity.country,
           },
         });
         setEditingCity(null);
