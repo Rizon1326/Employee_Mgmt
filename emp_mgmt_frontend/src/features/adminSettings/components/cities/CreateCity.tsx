@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 // import { useNavigate } from 'react-router-dom';
-import { useCountries, useCreateCity } from "../../hooks/useAdminSettings";
-import type { Country } from "../../types/adminSettings";
+import { useCountries, useCreateCity } from "../../hooks/citySettings";
+import type { Country } from "../../types/citySettings";
 import { Plus } from "lucide-react";
 export const CreateCity = () => {
   const {

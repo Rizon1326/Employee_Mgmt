@@ -6,7 +6,7 @@ import {
   useCountries,
   useUpdateCity,
   useDeleteCity,
-} from "../../hooks/useAdminSettings";
+} from "../../hooks/citySettings";
 
 export const CityList = () => {
   const {

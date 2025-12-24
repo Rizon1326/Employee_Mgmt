@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {fetchCities, fetchCountries, updateCity, deleteCity,createCity} from '../services/adminSettings.service';
-import type { City } from '../types/adminSettings';
+import {fetchCities, fetchCountries, updateCity, deleteCity,createCity} from '../services/citySettings.service';
+import type { City } from '../types/citySettings';
 
 export const useCities = () => {
   return useQuery({
