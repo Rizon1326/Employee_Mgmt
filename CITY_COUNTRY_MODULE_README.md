@@ -1,640 +1,588 @@
-# City / Country Module - CRUD Implementation Guide
+# Module Implementation Guide - React Query CRUD Pattern
 
-## 📋 Overview
+## Overview
+This guide demonstrates how to implement a complete CRUD module using React Query, TypeScript, and the existing API client pattern. Use this as a reference when building new features in the application.
 
-This module provides a complete CRUD (Create, Read, Update, Delete) implementation for managing **Cities** and **Countries** in a React application. It demonstrates a clean, scalable architecture using **React Query (TanStack Query)** for efficient data fetching, caching, and state management.
-
-The module serves as a **reusable template** that can be easily adapted for other entities like departments, roles, equipment, categories, etc.
-
----
-
-## 🛠️ Tech Stack
-
-- **React** (with Vite)
-- **TypeScript**
-- **React Query (TanStack Query)** - Data fetching and caching
-- **Axios / Fetch API** - HTTP client
-- **REST API** - Backend integration
+## Sample Module: City Management
+The City module serves as a reference implementation that includes:
+- Fetching data with React Query
+- Creating new records
+- Updating existing records
+- Deleting records
+- Managing related entities (Cities belong to Countries)
 
 ---
 
-## 📁 Recommended Folder Structure
+## Architecture Pattern
 
+### 1. **Folder Structure**
 ```
-src/
-├── api/
-│   ├── apiClient.ts              # Base API client (fetch/axios wrapper)
-│   └── queryClient.ts            # React Query client configuration
-│
-├── features/
-│   └── adminSettings/
-│       ├── components/
-│       │   ├── cities/
-│       │   │   ├── CityList.tsx
-│       │   │   ├── CityForm.tsx
-│       │   │   └── CityModal.tsx
-│       │   └── countries/
-│       │       ├── CountryList.tsx
-│       │       ├── CountryForm.tsx
-│       │       └── CountryModal.tsx
-│       │
-│       ├── hooks/
-│       │   ├── citySettings.ts       # React Query hooks for cities
-│       │   └── countrySettings.ts    # React Query hooks for countries
-│       │
-│       ├── services/
-│       │   ├── citySettings.service.ts    # API calls for cities
-│       │   └── countrySettings.service.ts # API calls for countries
-│       │
-│       └── types/
-│           ├── citySettings.ts       # TypeScript types for cities
-│           └── countrySettings.ts    # TypeScript types for countries
-│
-└── App.tsx
+features/
+  └── [featureName]/
+      ├── components/
+      │   └── [ComponentName].tsx
+      ├── hooks/
+      │   └── [featureName].ts
+      ├── services/
+      │   └── [featureName].service.ts
+      └── types/
+          └── [featureName].ts
 ```
 
----
+### 2. **Implementation Layers**
 
-## 🔌 API Integration Approach
+#### **Layer 1: Types** (`types/[featureName].ts`)
+Define TypeScript interfaces for:
+- Main entity type (e.g., `City`)
+- Related entities (e.g., `Country`)
+- Create/Update DTOs (e.g., `CreateCity`)
 
-### 1. Base API Client (`apiClient.ts`)
-
-Create reusable functions for all HTTP operations:
-
+**Example:**
 ```typescript
-const BASE_URL = 'http://localhost:8000/api';
-
-type PaginatedResponse<T> = {
-  results: T[];
+export type Country = {
+  id: number;
+  name: string;
 };
 
-// Generic function to fetch list of items
-async function fetchList<T>(endpoint: string): Promise<T[]> {
-  const res = await fetch(`${BASE_URL}/${endpoint}/`);
-  
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-  
-  const data: PaginatedResponse<T> | T[] = await res.json();
-  
-  // Handle both paginated and non-paginated responses
-  if (Array.isArray(data)) {
-    return data;
-  }
-  
-  if ('results' in data && Array.isArray(data.results)) {
-    return data.results;
-  }
-  
-  return [];
-}
+export type City = {
+  id: number;
+  name: string;
+  country: Country;
+};
 
-// Create new item
-async function createItem<T>(endpoint: string, item: Partial<T>): Promise<T> {
-  const res = await fetch(`${BASE_URL}/${endpoint}/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Failed to create item at ${endpoint}`);
-  }
-  
-  return res.json();
-}
-
-// Update existing item
-async function updateItem<T>(endpoint: string, id: number, item: Partial<T>): Promise<T> {
-  const res = await fetch(`${BASE_URL}/${endpoint}/${id}/`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Failed to update item with id ${id}`);
-  }
-  
-  return res.json();
-}
-
-// Delete item
-async function deleteItem(endpoint: string, id: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/${endpoint}/${id}/`, {
-    method: 'DELETE',
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Failed to delete item with id ${id}`);
-  }
-}
-
-export { fetchList, createItem, updateItem, deleteItem };
-```
-
----
-
-### 2. Service Layer (`citySettings.service.ts`)
-
-Wrap API client with entity-specific functions:
-
-```typescript
-import { fetchList, createItem, updateItem, deleteItem } from '@/api/apiClient';
-import { City } from '../types/citySettings';
-
-const ENDPOINT = 'cities';
-
-export const cityService = {
-  // Fetch all cities
-  fetchCities: () => fetchList<City>(ENDPOINT),
-  
-  // Create new city
-  createCity: (city: Partial<City>) => createItem<City>(ENDPOINT, city),
-  
-  // Update existing city
-  updateCity: (id: number, city: Partial<City>) => updateItem<City>(ENDPOINT, id, city),
-  
-  // Delete city
-  deleteCity: (id: number) => deleteItem(ENDPOINT, id),
+export type CreateCity = {
+  name: string;
+  country_id: number;
 };
 ```
 
+**Guidelines:**
+- Use descriptive type names
+- Separate read models from write models (DTO pattern)
+- Include related entities when needed for display
+- Use snake_case for backend field names (e.g., `country_id`)
+
 ---
 
-### 3. TypeScript Types (`citySettings.ts`)
+#### **Layer 2: Services** (`services/[featureName].service.ts`)
+Create service functions that use the centralized API client.
 
+**Example:**
 ```typescript
-export interface City {
-  id: number;
-  name: string;
-  country: number;  // Foreign key to country
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
+import { fetchList, updateItem, deleteItem, createItem } from "../../../api/apiClient";
+import type { City, CreateCity, Country } from "../types/citySettings";
 
-export interface Country {
-  id: number;
-  name: string;
-  code?: string;
-  is_active?: boolean;
-}
+export const fetchCities = async (): Promise<City[]> => {
+  return fetchList<City>("cities");
+};
+
+export const fetchCountries = async (): Promise<Country[]> => {
+  return fetchList<Country>("countries");
+};
+
+export const createCity = async (cityData: Partial<CreateCity>): Promise<CreateCity> => {
+  return createItem<CreateCity>("cities", cityData);
+};
+
+export const updateCity = async (id: number, cityData: Partial<CreateCity>): Promise<CreateCity> => {
+  return updateItem<CreateCity>("cities", id, cityData);
+};
+
+export const deleteCity = async (id: number): Promise<void> => {
+  return deleteItem("cities", id);
+};
 ```
 
+**Guidelines:**
+- Import generic CRUD functions from `apiClient.ts`
+- Use consistent naming: `fetch[Entity]`, `create[Entity]`, `update[Entity]`, `delete[Entity]`
+- Pass the endpoint string (e.g., "cities") matching your Django backend URL
+- Use TypeScript generics for type safety
+- Keep service functions thin - just API calls, no business logic
+
 ---
 
-## ⚡ React Query Usage
+#### **Layer 3: Hooks** (`hooks/[featureName].ts`)
+Create React Query hooks for data fetching and mutations.
 
-### 1. Custom Hooks (`hooks/citySettings.ts`)
-
-React Query hooks encapsulate all data fetching logic:
-
+**Example:**
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { cityService } from '../services/citySettings.service';
-import { City } from '../types/citySettings';
+import { fetchCities, fetchCountries, updateCity, deleteCity, createCity } from '../services/citySettings.service';
+import type { CreateCity } from '../types/citySettings';
 
-// Query Keys - centralized for easy cache management
-export const cityKeys = {
-  all: ['cities'] as const,
-  lists: () => [...cityKeys.all, 'list'] as const,
-  list: (filters: string) => [...cityKeys.lists(), { filters }] as const,
-  details: () => [...cityKeys.all, 'detail'] as const,
-  detail: (id: number) => [...cityKeys.details(), id] as const,
+// Query Hook for Fetching
+export const useCities = () => {
+  return useQuery({
+    queryKey: ['cities'],
+    queryFn: fetchCities,
+  });
 };
 
-// ✅ FETCH: Get all cities
-export function useCities() {
+export const useCountries = () => {
   return useQuery({
-    queryKey: cityKeys.lists(),
-    queryFn: cityService.fetchCities,
-    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
-    gcTime: 10 * 60 * 1000,   // Cache for 10 minutes (was cacheTime)
+    queryKey: ['countries'],
+    queryFn: fetchCountries,
   });
-}
+};
 
-// ✅ CREATE: Add new city
-export function useCreateCity() {
+// Mutation Hook for Creating
+export const useCreateCity = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (newCity: Partial<City>) => cityService.createCity(newCity),
+    mutationFn: (cityData: Partial<CreateCity>) => createCity(cityData),
     onSuccess: () => {
-      // Invalidate and refetch cities list
-      queryClient.invalidateQueries({ queryKey: cityKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
     },
     onError: (error) => {
-      console.error('Failed to create city:', error);
+      console.error('Error creating city:', error);
     },
   });
-}
+};
 
-// ✅ UPDATE: Edit existing city
-export function useUpdateCity() {
+// Mutation Hook for Updating
+export const useUpdateCity = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<City> }) =>
-      cityService.updateCity(id, data),
+    mutationFn: ({ id, cityData }: { id: number; cityData: Partial<CreateCity> }) =>
+      updateCity(id, cityData),
     onSuccess: () => {
-      // Invalidate queries to refresh the list
-      queryClient.invalidateQueries({ queryKey: cityKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
     },
     onError: (error) => {
-      console.error('Failed to update city:', error);
+      console.error('Error updating city:', error);
     },
   });
-}
+};
 
-// ✅ DELETE: Remove city
-export function useDeleteCity() {
+// Mutation Hook for Deleting
+export const useDeleteCity = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: number) => cityService.deleteCity(id),
+    mutationFn: (id: number) => deleteCity(id),
     onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: cityKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
     },
     onError: (error) => {
-      console.error('Failed to delete city:', error);
+      console.error('Error deleting city:', error);
     },
   });
-}
+};
 ```
+
+**Guidelines:**
+- **Query Hooks** (`useQuery`): For GET requests
+  - Use descriptive queryKey arrays (e.g., `['cities']`)
+  - QueryKey is used for caching and invalidation
+  
+- **Mutation Hooks** (`useMutation`): For POST, PUT, DELETE requests
+  - Always get `queryClient` via `useQueryClient()`
+  - Invalidate relevant queries in `onSuccess` to refresh data
+  - Handle errors in `onError` callback
+  - For updates, accept both `id` and data payload
+  - For creates, accept only data payload
+  - For deletes, accept only `id`
 
 ---
 
-## 🔄 CRUD Flow - Step by Step
+#### **Layer 4: Components** (`components/[ComponentName].tsx`)
 
-### **Step 1: Fetch Data (READ)**
+##### **Create Component**
+Handles form input and submission for creating new records.
 
+**Example:**
 ```typescript
-function CityList() {
-  const { data: cities, isLoading, error } = useCities();
+import React, { useState } from "react";
+import { useCountries, useCreateCity } from "../../hooks/citySettings";
+import type { Country } from "../../types/citySettings";
+import { Plus } from "lucide-react";
+
+export const CreateCity = () => {
+  const { data: countryData, isLoading, isError } = useCountries();
+  const createCityMutation = useCreateCity();
   
-  if (isLoading) return <div>Loading cities...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  
-  return (
-    <ul>
-      {cities?.map((city) => (
-        <li key={city.id}>{city.name}</li>
-      ))}
-    </ul>
-  );
-}
-```
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [cityName, setCityName] = useState("");
 
-**What happens:**
-1. Component mounts → React Query checks cache
-2. If cache is fresh → returns cached data immediately
-3. If stale or missing → fetches from API
-4. Updates component with data
+  const handleCreateCity = async () => {
+    if (!selectedCountry || !cityName.trim()) {
+      alert("Please select a country and enter a city name");
+      return;
+    }
 
----
-
-### **Step 2: Create New Item (CREATE)**
-
-```typescript
-function CityForm() {
-  const createCity = useCreateCity();
-  const [name, setName] = useState('');
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    createCity.mutate(
-      { name },
-      {
-        onSuccess: () => {
-          setName(''); // Clear form
-          alert('City created successfully!');
-        },
-      }
-    );
-  };
-  
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="City name"
-      />
-      <button type="submit" disabled={createCity.isPending}>
-        {createCity.isPending ? 'Creating...' : 'Create City'}
-      </button>
-      {createCity.error && <p>Error: {createCity.error.message}</p>}
-    </form>
-  );
-}
-```
-
-**What happens:**
-1. User submits form
-2. `mutate()` sends POST request
-3. On success → React Query invalidates `cities` cache
-4. List automatically refetches and updates
-
----
-
-### **Step 3: Update Existing Item (UPDATE)**
-
-```typescript
-function CityEditForm({ city }: { city: City }) {
-  const updateCity = useUpdateCity();
-  const [name, setName] = useState(city.name);
-  
-  const handleUpdate = () => {
-    updateCity.mutate(
-      { id: city.id, data: { name } },
-      {
-        onSuccess: () => {
-          alert('City updated successfully!');
-        },
-      }
-    );
-  };
-  
-  return (
-    <div>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <button onClick={handleUpdate} disabled={updateCity.isPending}>
-        {updateCity.isPending ? 'Updating...' : 'Update'}
-      </button>
-    </div>
-  );
-}
-```
-
----
-
-### **Step 4: Delete Item (DELETE)**
-
-```typescript
-function CityItem({ city }: { city: City }) {
-  const deleteCity = useDeleteCity();
-  
-  const handleDelete = () => {
-    if (confirm(`Delete ${city.name}?`)) {
-      deleteCity.mutate(city.id, {
-        onSuccess: () => {
-          alert('City deleted successfully!');
-        },
+    try {
+      await createCityMutation.mutateAsync({
+        name: cityName.trim(),
+        country_id: parseInt(selectedCountry)
       });
+      
+      setCityName("");
+      setSelectedCountry("");
+    } catch (error) {
+      console.error("Failed to create city:", error);
+      alert("Failed to create city. Please try again.");
     }
   };
   
   return (
-    <div>
-      <span>{city.name}</span>
-      <button onClick={handleDelete} disabled={deleteCity.isPending}>
-        {deleteCity.isPending ? 'Deleting...' : 'Delete'}
-      </button>
+    <div className="space-y-3">
+      <select
+        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        value={selectedCountry}
+        onChange={(e) => setSelectedCountry(e.target.value)}
+      >
+        <option value="">Select Country</option>
+        {!isLoading && !isError && countryData?.map((country: Country) => (
+          <option key={country.id} value={country.id}>
+            {country.name}
+          </option>
+        ))}
+      </select>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={cityName}
+          onChange={(e) => setCityName(e.target.value)}
+          placeholder="City name"
+          className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleCreateCity}
+          disabled={createCityMutation.isPending}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+        >
+          {createCityMutation.isPending ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Plus className="w-5 h-5" />
+          )}
+        </button>
+      </div>
     </div>
   );
-}
-```
-
----
-
-## 🔁 How to Reuse for Other Entities
-
-This module is designed to be a **template**. Here's how to adapt it for other entities:
-
-### Example: Creating a "Department" Module
-
-1. **Create Types** (`types/departmentSettings.ts`):
-   ```typescript
-   export interface Department {
-     id: number;
-     name: string;
-     code: string;
-     is_active: boolean;
-   }
-   ```
-
-2. **Create Service** (`services/departmentSettings.service.ts`):
-   ```typescript
-   import { fetchList, createItem, updateItem, deleteItem } from '@/api/apiClient';
-   import { Department } from '../types/departmentSettings';
-   
-   const ENDPOINT = 'departments';
-   
-   export const departmentService = {
-     fetchDepartments: () => fetchList<Department>(ENDPOINT),
-     createDepartment: (dept: Partial<Department>) => createItem<Department>(ENDPOINT, dept),
-     updateDepartment: (id: number, dept: Partial<Department>) => 
-       updateItem<Department>(ENDPOINT, id, dept),
-     deleteDepartment: (id: number) => deleteItem(ENDPOINT, id),
-   };
-   ```
-
-3. **Create Hooks** (`hooks/departmentSettings.ts`):
-   ```typescript
-   import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-   import { departmentService } from '../services/departmentSettings.service';
-   
-   export const departmentKeys = {
-     all: ['departments'] as const,
-     lists: () => [...departmentKeys.all, 'list'] as const,
-   };
-   
-   export function useDepartments() {
-     return useQuery({
-       queryKey: departmentKeys.lists(),
-       queryFn: departmentService.fetchDepartments,
-     });
-   }
-   
-   export function useCreateDepartment() {
-     const queryClient = useQueryClient();
-     return useMutation({
-       mutationFn: departmentService.createDepartment,
-       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: departmentKeys.lists() });
-       },
-     });
-   }
-   
-   // ... useUpdateDepartment, useDeleteDepartment
-   ```
-
-4. **Create Components** (`components/departments/DepartmentList.tsx`):
-   ```typescript
-   function DepartmentList() {
-     const { data: departments, isLoading } = useDepartments();
-     // ... render logic
-   }
-   ```
-
----
-
-## ✅ Best Practices
-
-### 1. **Centralize Query Keys**
-```typescript
-// ✅ Good - Easy to manage and invalidate
-export const cityKeys = {
-  all: ['cities'] as const,
-  lists: () => [...cityKeys.all, 'list'] as const,
-  detail: (id: number) => [...cityKeys.all, id] as const,
 };
-
-// ❌ Bad - Hard to track and invalidate
-useQuery({ queryKey: ['cities'], ... });
-useQuery({ queryKey: ['city-list'], ... });
 ```
 
-### 2. **Use TypeScript**
-Always define types for your data to catch errors early.
+##### **List Component**
+Displays data with inline editing and deletion.
 
-### 3. **Handle Loading and Error States**
+**Example:**
 ```typescript
-if (isLoading) return <Spinner />;
-if (error) return <ErrorMessage error={error} />;
+import React, { useState } from "react";
+import { Edit2, Trash2 } from "lucide-react";
+import { useCities, useCountries, useUpdateCity, useDeleteCity } from "../../hooks/citySettings";
+
+export const CityList = () => {
+  const { data: countryData, isLoading: isCountryLoading, isError: isCountryError } = useCountries();
+  const { data: cityData, isLoading: isCityLoading, isError: isCityError } = useCities();
+  
+  const updateCityMutation = useUpdateCity();
+  const deleteCityMutation = useDeleteCity();
+
+  const countries = countryData || [];
+  const cities = cityData || [];
+
+  const [editingCity, setEditingCity] = useState<{
+    id: number;
+    name: string;
+    country: number | null;
+  } | null>(null);
+
+  const handleUpdateCity = async () => {
+    if (editingCity && editingCity.name.trim() && editingCity.country) {
+      try {
+        await updateCityMutation.mutateAsync({
+          id: editingCity.id,
+          cityData: {
+            name: editingCity.name,
+            country_id: editingCity.country,
+          },
+        });
+        setEditingCity(null);
+      } catch (error) {
+        console.error("Failed to update city:", error);
+      }
+    }
+  };
+
+  const handleDeleteCity = async (id: number, name: string) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      try {
+        await deleteCityMutation.mutateAsync(id);
+      } catch (error) {
+        console.error("Failed to delete city:", error);
+      }
+    }
+  };
+
+  if (isCountryLoading || isCityLoading) {
+    return <div className="p-4">Loading...</div>;
+  }
+
+  if (isCountryError || isCityError) {
+    return <div className="p-4 text-red-600">Error loading data</div>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {cities.map((city) => (
+        <div key={city.id}>
+          {editingCity?.id === city.id ? (
+            <div className="space-y-2">
+              <div className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <span className="text-slate-500">
+                  {countries.find((country) => country.id === editingCity.country)?.name}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editingCity.name}
+                  onChange={(e) => setEditingCity({ ...editingCity, name: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleUpdateCity}
+                  disabled={updateCityMutation.isPending}
+                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                >
+                  {updateCityMutation.isPending ? "Saving..." : "Save"}
+                </button>
+                <button
+                  onClick={() => setEditingCity(null)}
+                  className="px-3 py-2 bg-slate-300 text-slate-700 rounded-lg hover:bg-slate-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <div>
+                <span className="text-slate-700">{city.name}</span>
+                <p className="text-sm text-slate-500">{city.country?.name}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setEditingCity({
+                    id: city.id,
+                    name: city.name,
+                    country: city.country?.id || 0,
+                  })}
+                  className="p-1 text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteCity(city.id, city.name)}
+                  disabled={deleteCityMutation.isPending}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
 ```
 
-### 4. **Optimistic Updates (Advanced)**
-For better UX, update UI immediately before API responds:
+**Component Guidelines:**
+- Handle loading and error states
+- Use `mutateAsync` for async operations where you need to wait for completion
+- Use `mutation.isPending` to show loading states on buttons
+- Reset form state after successful creation
+- Show confirmation dialogs before deletion
+- Use inline editing pattern for better UX
+- Disable buttons during pending operations
+
+---
+
+## API Client Reference
+
+The centralized API client (`api/apiClient.ts`) provides these generic functions:
+
 ```typescript
-const updateCity = useMutation({
-  mutationFn: cityService.updateCity,
-  onMutate: async (newCity) => {
-    // Cancel outgoing queries
-    await queryClient.cancelQueries({ queryKey: cityKeys.lists() });
+// Fetch list of items (GET)
+fetchList<T>(endpoint: string): Promise<T[]>
+
+// Create new item (POST)
+createItem<T>(endpoint: string, item: Partial<T>): Promise<T>
+
+// Update existing item (PUT)
+updateItem<T>(endpoint: string, id: number, item: Partial<T>): Promise<T>
+
+// Delete item (DELETE)
+deleteItem(endpoint: string, id: number): Promise<void>
+```
+
+**Usage:**
+- Endpoint should match Django URL pattern (e.g., "cities", "employees", "departments")
+- All functions handle JSON serialization and error responses
+- Returns strongly-typed responses based on generic type parameter
+
+---
+
+## Checklist for New Module
+
+When implementing a new CRUD module, follow this checklist:
+
+### 1. Types Layer
+- [ ] Define main entity type
+- [ ] Define related entity types (if any)
+- [ ] Create DTO types for create/update operations
+- [ ] Export all types
+
+### 2. Services Layer
+- [ ] Import API client functions
+- [ ] Implement `fetch[Entity]` for listing
+- [ ] Implement `create[Entity]` for creation
+- [ ] Implement `update[Entity]` for updates
+- [ ] Implement `delete[Entity]` for deletion
+- [ ] Add proper TypeScript generics
+
+### 3. Hooks Layer
+- [ ] Create query hook with `useQuery` for fetching
+- [ ] Create mutation hook with `useMutation` for creation
+- [ ] Create mutation hook with `useMutation` for updates
+- [ ] Create mutation hook with `useMutation` for deletion
+- [ ] Add `invalidateQueries` in `onSuccess` callbacks
+- [ ] Add error handling in `onError` callbacks
+
+### 4. Components Layer
+- [ ] Create component for listing/displaying data
+- [ ] Add loading and error state handling
+- [ ] Implement inline editing UI
+- [ ] Implement delete with confirmation
+- [ ] Create component for creating new records
+- [ ] Add form validation
+- [ ] Reset form after successful submission
+- [ ] Show pending states on buttons
+
+### 5. Integration
+- [ ] Import components in parent component
+- [ ] Test create operation
+- [ ] Test update operation
+- [ ] Test delete operation
+- [ ] Verify data refreshes after mutations
+
+---
+
+## Common Patterns & Best Practices
+
+### 1. Error Handling
+```typescript
+const handleCreate = async () => {
+  try {
+    await createMutation.mutateAsync(data);
+    // Success feedback
+  } catch (error) {
+    console.error("Failed:", error);
+    alert("Operation failed. Please try again.");
+  }
+};
+```
+
+### 2. Form State Management
+```typescript
+const [formData, setFormData] = useState({ name: "", relatedId: "" });
+
+// Reset after successful creation
+const handleCreate = async () => {
+  await createMutation.mutateAsync(formData);
+  setFormData({ name: "", relatedId: "" }); // Reset
+};
+```
+
+### 3. Optimistic Updates (Optional)
+For better UX, update UI before backend confirms:
+```typescript
+const updateMutation = useMutation({
+  mutationFn: updateItem,
+  onMutate: async (newData) => {
+    // Cancel outgoing refetches
+    await queryClient.cancelQueries({ queryKey: ['items'] });
     
     // Snapshot previous value
-    const previous = queryClient.getQueryData(cityKeys.lists());
+    const previousData = queryClient.getQueryData(['items']);
     
     // Optimistically update
-    queryClient.setQueryData(cityKeys.lists(), (old: City[]) =>
-      old.map((city) => (city.id === newCity.id ? { ...city, ...newCity.data } : city))
-    );
+    queryClient.setQueryData(['items'], (old) => [...old, newData]);
     
-    return { previous };
+    return { previousData };
   },
-  onError: (err, newCity, context) => {
+  onError: (err, newData, context) => {
     // Rollback on error
-    queryClient.setQueryData(cityKeys.lists(), context?.previous);
+    queryClient.setQueryData(['items'], context.previousData);
+  },
+  onSettled: () => {
+    queryClient.invalidateQueries({ queryKey: ['items'] });
   },
 });
 ```
 
-### 5. **Avoid Over-fetching**
-Use `staleTime` to reduce unnecessary API calls:
+### 4. Dependent Dropdowns
+When one field depends on another (like City depends on Country):
 ```typescript
-useQuery({
-  queryKey: cityKeys.lists(),
-  queryFn: cityService.fetchCities,
-  staleTime: 5 * 60 * 1000, // 5 minutes
-});
+const [country, setCountry] = useState("");
+const { data: cities } = useCities(country); // Pass country as filter
+
+// In UI
+<select value={country} onChange={(e) => setCountry(e.target.value)}>
+  {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+</select>
 ```
 
 ---
 
-## ⚠️ Common Mistakes
+## Quick Start Template
 
-### 1. **Not Invalidating Queries After Mutations**
-```typescript
-// ❌ Bad - List won't update after creating
-useMutation({ mutationFn: cityService.createCity });
+Use this template to quickly scaffold a new module:
 
-// ✅ Good - List refetches automatically
-useMutation({
-  mutationFn: cityService.createCity,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: cityKeys.lists() });
-  },
-});
-```
+```bash
+# 1. Create folder structure
+features/[moduleName]/
+  ├── components/
+  ├── hooks/
+  ├── services/
+  └── types/
 
-### 2. **Forgetting Error Handling**
-```typescript
-// ❌ Bad - Errors go unnoticed
-const { data } = useCities();
+# 2. Create files
+types/[moduleName].ts
+services/[moduleName].service.ts
+hooks/[moduleName].ts
+components/[ModuleName]List.tsx
+components/Create[ModuleName].tsx
 
-// ✅ Good - Show errors to user
-const { data, error } = useCities();
-if (error) return <Alert>{error.message}</Alert>;
-```
-
-### 3. **Using Wrong HTTP Methods**
-- `GET` → Read
-- `POST` → Create
-- `PUT/PATCH` → Update
-- `DELETE` → Delete
-
-### 4. **Not Using Loading States**
-Always disable buttons during mutations:
-```typescript
-<button disabled={createCity.isPending}>
-  {createCity.isPending ? 'Creating...' : 'Create'}
-</button>
+# 3. Follow the implementation pattern shown above
 ```
 
 ---
 
-## 🚀 Future Improvements
+## Related Resources
 
-1. **Pagination Support**
-   - Add `page` and `limit` parameters
-   - Implement infinite scroll with `useInfiniteQuery`
-
-2. **Search and Filtering**
-   ```typescript
-   export function useCities(filters?: { search: string; country?: number }) {
-     return useQuery({
-       queryKey: cityKeys.list(JSON.stringify(filters)),
-       queryFn: () => cityService.fetchCities(filters),
-     });
-   }
-   ```
-
-3. **Form Validation**
-   - Integrate `react-hook-form` or `formik`
-   - Add Zod/Yup schema validation
-
-4. **Toast Notifications**
-   - Replace alerts with toast library (e.g., `react-hot-toast`)
-
-5. **Permission-Based UI**
-   - Show/hide create/edit/delete based on user roles
-
-6. **Bulk Operations**
-   - Select multiple items
-   - Bulk delete or update
-
-7. **Export to CSV/Excel**
-   - Allow users to download data
-
-8. **Audit Logs**
-   - Track who created/updated/deleted items
+- **API Client**: `src/api/apiClient.ts`
+- **React Query Setup**: `src/api/queryClient.ts`
+- **Example Implementation**: `src/features/adminSettings/` (City/Country modules)
+- **Django Backend**: Ensure your backend has corresponding REST API endpoints
 
 ---
 
-## 📚 Additional Resources
+## Notes
 
-- [React Query Docs](https://tanstack.com/query/latest/docs/react/overview)
-- [React Query Best Practices](https://tkdodo.eu/blog/practical-react-query)
-- [TypeScript with React Query](https://tanstack.com/query/latest/docs/react/typescript)
-
----
-
-## 📝 Summary
-
-This module demonstrates:
-- ✅ Clean separation of concerns (types, services, hooks, components)
-- ✅ React Query for efficient data management
-- ✅ TypeScript for type safety
-- ✅ Reusable architecture
-- ✅ Best practices and error handling
-
-Use this as a foundation for all your CRUD modules!
+- This pattern scales well for complex applications
+- React Query handles caching, background updates, and stale data automatically
+- TypeScript ensures type safety across all layers
+- The separation of concerns makes code maintainable and testable
+- Always test CRUD operations in the order: Create → Read → Update → Delete
 
 ---
 
-**Happy Coding! 🎉**
+**Last Updated:** January 2026  
+**Version:** 1.0
