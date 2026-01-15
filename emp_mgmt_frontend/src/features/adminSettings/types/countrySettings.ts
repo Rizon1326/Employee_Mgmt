@@ -3,5 +3,5 @@ export type Country = {
   name: string;
 };
 export type CreateCountry ={
-    "name":string;
+    name:string;
 }
