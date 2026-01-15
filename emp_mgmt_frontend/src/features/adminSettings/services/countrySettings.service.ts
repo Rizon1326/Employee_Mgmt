@@ -11,7 +11,7 @@ export const createCountry = async (countryData: Partial<CreateCountry>): Promis
 
 
 export const updateCountry = async (id: number, countryData: Partial<CreateCountry>): Promise<CreateCountry> => {
-  return updateItem<CreateCountry>("cities", id, countryData);
+  return updateItem<CreateCountry>("countries", id, countryData);
 };
 
 export const deleteCountry = async (id:number):Promise<void>=>{

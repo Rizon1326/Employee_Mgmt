@@ -7,7 +7,7 @@
 
 // import EmployeeList from "./pages/EmployeeList";
 // import { CityList } from "./features/adminSettings/components/cities/CityList";
-import { City } from "./features/adminSettings/components/cities/City";
+// import { City } from "./features/adminSettings/components/cities/City";
 // import { CityList } from "./features/adminSettings/components/cities/CityList";
 // import ManagementCard from "./features/adminSettings/components/ManagementCard";
 
@@ -17,6 +17,7 @@ import { City } from "./features/adminSettings/components/cities/City";
 
 // import Equipment from "./pages/Equipment";
 // import EmployeeFilter from "./features/employeeList/components/EmployeeFilter";
+import { CountryList } from "./features/adminSettings/components/countries/CountryList";
 function App() {
   return (
     <div>
@@ -31,7 +32,8 @@ function App() {
       {/* <EmployeeList/> */}
       {/* <City/> */}
       {/* <CreateCity/> */}
-      <City/>
+      {/* <City/> */}
+      <CountryList/>
       
     </div>
   );
