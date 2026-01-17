@@ -40,6 +40,7 @@ export const DepartmentList = () => {
       }
     }
   };
+
   if (isLoadingDepartments) {
     return <div>Loading departments...</div>;
   }
