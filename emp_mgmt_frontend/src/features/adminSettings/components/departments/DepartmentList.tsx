@@ -87,8 +87,12 @@ export const DepartmentList = () => {
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button className="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  onClick={() => handleDeleteDepartment(department.id, department.name) }>
+                <button
+                  className="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  onClick={() =>
+                    handleDeleteDepartment(department.id, department.name)
+                  }
+                >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
