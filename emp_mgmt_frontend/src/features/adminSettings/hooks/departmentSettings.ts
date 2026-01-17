@@ -36,7 +36,7 @@ export const useUpdateDepartment=()=>{
     })
 }
 
-export const useDeleteCountry = () => {
+export const useDeleteDepartment = () => {
   const queryClient = useQueryClient();
   
   return useMutation({

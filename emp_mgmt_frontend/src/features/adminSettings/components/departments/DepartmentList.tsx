@@ -3,7 +3,7 @@ import { Edit2, Trash2 } from "lucide-react";
 import {
   useDepartment,
   useUpdateDepartment,
-  useDeleteCountry,
+  useDeleteDepartment,
 } from "../../hooks/departmentSettings";
 export const DepartmentList = () => {
   const { data: departmentData } = useDepartment();
@@ -14,7 +14,7 @@ export const DepartmentList = () => {
   } | null>(null);
 
   const updateDepartmentMutation = useUpdateDepartment();
-  const deleteDepartmentMutation = useDeleteCountry();
+  const deleteDepartmentMutation = useDeleteDepartment();
   const handleUpdateDepartment = async () => {
     if (editingDepartment && editingDepartment.name.trim()) {
       try {
