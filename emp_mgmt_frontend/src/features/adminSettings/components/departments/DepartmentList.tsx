@@ -6,7 +6,7 @@ import {
   useDeleteDepartment,
 } from "../../hooks/departmentSettings";
 export const DepartmentList = () => {
-  const { data: departmentData } = useDepartment();
+  const { data: departmentData, isLoading: isLoadingDepartments } = useDepartment();
   const departments = departmentData || [];
   const [editingDepartment, setEditingDepartment] = useState<{
     id: number;
@@ -40,6 +40,9 @@ export const DepartmentList = () => {
       }
     }
   };
+  if (isLoadingDepartments) {
+    return <div>Loading departments...</div>;
+  }
 
   return (
     <div className="space-y-2">
