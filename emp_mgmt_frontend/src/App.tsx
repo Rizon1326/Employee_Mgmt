@@ -3,6 +3,8 @@
 // import EmployeeFormPage from "./components/EmployeeFormPage";
 // import { EquipmentModal } from "./features/equipmentModal/components/EquipmentModal";
 
+// import CreateCountry from "./features/adminSettings/components/countries/CreateCountry";
+
 // import { CreateCity } from "./features/adminSettings/components/cities/CreateCity";
 
 // import EmployeeList from "./pages/EmployeeList";
@@ -17,7 +19,10 @@
 
 // import Equipment from "./pages/Equipment";
 // import EmployeeFilter from "./features/employeeList/components/EmployeeFilter";
-import { CountryList } from "./features/adminSettings/components/countries/CountryList";
+// import { CountryList } from "./features/adminSettings/components/countries/CountryList";
+// import { Country } from "./features/adminSettings/components/countries/Country";
+import {DepartmentList} from "./features/adminSettings/components/departments/DepartmentList";
+// ;
 function App() {
   return (
     <div>
@@ -33,8 +38,10 @@ function App() {
       {/* <City/> */}
       {/* <CreateCity/> */}
       {/* <City/> */}
-      <CountryList/>
-      
+      {/* <CountryList/> */}
+      {/* <CreateCountry/> */}
+      {/* <Country/> */}
+      <DepartmentList/>
     </div>
   );
 }
